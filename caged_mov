@@ -1,0 +1,83 @@
+import pandas as pd
+import numpy as np
+
+caged7 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202007.txt'
+cagedjul = pd.read_csv(caged7,sep=';', encoding='cp1252')
+
+caged6 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202006.txt'
+cagedjun = pd.read_csv(caged6,sep=';', encoding='cp1252')
+
+caged5 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202005.txt'
+cagedmai = pd.read_csv(caged5,sep=';', encoding='cp1252')
+
+caged4 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202004.txt'
+cagedabr = pd.read_csv(caged4,sep=';', encoding='cp1252')
+
+caged3 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202003.txt'
+cagedmar = pd.read_csv(caged3,sep=';', encoding='cp1252')
+
+caged2 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202002.txt'
+cagedfev = pd.read_csv(caged2,sep=';', encoding='cp1252')
+
+caged1 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202001.txt'
+cagedjan = pd.read_csv(caged1,sep=';', encoding='cp1252')
+
+#removendo colunas
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+    cageds = cageds.drop(cageds.columns[[5,12,23]], axis=1,inplace=True)
+#criando nomes e renomeando colunas
+columns = ['Ano/Mes','Código da Grande Região','Código UF','Código do Município','Código CNAE','Movimentacao','Codigo da Ocupacao','Categoria','Grau de Inst','Idade','Horas Contratual','Sexo','Tipo de Empregador','Tipo de Estabelecimento','Tipo de Mov','Deficiencia','Trab Intermitente','Trab Parcial','Salario','Tamanho do Estabelecimento Jan/2020','Aprendiz']
+cagedjul.columns = columns
+cagedjun.columns = columns
+cagedmai.columns = columns
+cagedabr.columns = columns
+cagedmar.columns = columns
+cagedfev.columns = columns
+cagedjan.columns = columns
+#criando novas colunas
+#criando novas colunas: nome da regiao
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+    conditions = [
+            (cageds['Código da Grande Região']==1),
+            (cageds['Código da Grande Região']==2),
+            (cageds['Código da Grande Região']==3),
+            (cageds['Código da Grande Região']==4),
+            (cageds['Código da Grande Região']==5),
+            ]
+    choices = ['Norte','Nordeste','Sudeste','Sul','Centro-Oeste']
+    cageds['Nome da Grande Região'] = np.select(conditions, choices)
+    conditions1 = [
+            (cageds['Código UF']==11),
+            (cageds['Código UF']==12),
+            (cageds['Código UF']==13),
+            (cageds['Código UF']==14),
+            (cageds['Código UF']==15),
+            (cageds['Código UF']==16),
+            (cageds['Código UF']==17),
+            (cageds['Código UF']==21),
+            (cageds['Código UF']==22),
+            (cageds['Código UF']==23),
+            (cageds['Código UF']==24),
+            (cageds['Código UF']==25),
+            (cageds['Código UF']==26),
+            (cageds['Código UF']==27),
+            (cageds['Código UF']==28),
+            (cageds['Código UF']==29),
+            (cageds['Código UF']==31),
+            (cageds['Código UF']==32),
+            (cageds['Código UF']==33),
+            (cageds['Código UF']==35),
+            (cageds['Código UF']==41),
+            (cageds['Código UF']==42),
+            (cageds['Código UF']==43),
+            (cageds['Código UF']==51),
+            (cageds['Código UF']==52),
+            (cageds['Código UF']==53),
+            (cageds['Código UF']==50)
+            ]
+    choices1 = ['Rondônia','Acre','Amazonas','Roraima','Pará','Amapá','Tocantins','Maranhão','Piaui','Ceará','Rio Grande do Norte','Paraiba','Pernambuco','Alagoas','Sergipe','Bahia','Minas Gerais','Espirito Santo','Rio de Janeiro','Sao Paulo','Parana','Santa Catarina','Rio Grande do Sul','Mato Grosso','Goias','Distrito Federal','Mato Grosso do Sul']
+    cageds['Nome da UF'] = np.select(conditions1, choices1)
+    choices2 = ['RO','AC','AM','RR','PA','AP','TO','MA','PI','CE','RN','PB','PE','AL','SE','BA','MG','ES','RJ','SP','PR','SC','RS','MT','GO','DF','MS']
+    cageds['Sigla da UF'] = np.select(conditions1, choices2)
+#juntando dataframes pelas colunas
+combinado = pd.merge(left=cagedjan,right=cagedfev,on='Código do Município')
