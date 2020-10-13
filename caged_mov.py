@@ -79,5 +79,84 @@ for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
     cageds['Nome da UF'] = np.select(conditions1, choices1)
     choices2 = ['RO','AC','AM','RR','PA','AP','TO','MA','PI','CE','RN','PB','PE','AL','SE','BA','MG','ES','RJ','SP','PR','SC','RS','MT','GO','DF','MS']
     cageds['Sigla da UF'] = np.select(conditions1, choices2)
-#juntando dataframes pelas colunas
-combinado = pd.merge(left=cagedjan,right=cagedfev,on='Código do Município')
+    cageds['Massa Salarial'] = cageds['Salario'] * cageds['Movimentacao']
+    
+agrupado1 = cagedjan.groupby('Código do Município')
+admitidos1 = agrupado1['Massa Salarial']
+dif_ad1 = admitidos1.agg(np.sum)
+cagedjan = (cagedjan.drop_duplicates('Código do Município'))
+cagedjan.index = cagedjan['Código do Município']
+cagedjan.sort_index(inplace=True)
+cagedjan.drop(cagedjan.columns[[4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]],inplace=True,axis=1)
+cagedjan = pd.concat([cagedjan,dif_ad1],axis=1)
+    
+dropar = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+
+agrupado2 = cagedfev.groupby('Código do Município')
+admitidos2 = agrupado2['Massa Salarial']
+dif_ad2 = admitidos2.agg(np.sum)
+cagedfev = (cagedfev.drop_duplicates('Código do Município'))
+cagedfev.index = cagedfev['Código do Município']
+cagedfev.sort_index(inplace=True)
+cagedfev.drop(cagedfev.columns[[dropar]],inplace=True,axis=1)
+cagedfev = pd.concat([cagedfev,dif_ad2],axis=1)
+
+agrupado3 = cagedmar.groupby('Código do Município')
+admitidos3 = agrupado3['Massa Salarial']
+dif_ad3 = admitidos3.agg(np.sum)
+cagedmar = (cagedmar.drop_duplicates('Código do Município'))
+cagedmar.index = cagedmar['Código do Município']
+cagedmar.sort_index(inplace=True)
+cagedmar.drop(cagedmar.columns[[dropar]],inplace=True,axis=1)
+cagedmar = pd.concat([cagedmar,dif_ad3],axis=1)
+
+agrupado4 = cagedabr.groupby('Código do Município')
+admitidos4 = agrupado4['Massa Salarial']
+dif_ad4 = admitidos4.agg(np.sum)
+cagedabr = (cagedabr.drop_duplicates('Código do Município'))
+cagedabr.index = cagedabr['Código do Município']
+cagedabr.sort_index(inplace=True)
+cagedabr.drop(cagedabr.columns[[dropar]],inplace=True,axis=1)
+cagedabr = pd.concat([cagedabr,dif_ad4],axis=1)
+
+agrupado5 = cagedmai.groupby('Código do Município')
+admitidos5 = agrupado5['Massa Salarial']
+dif_ad5 = admitidos5.agg(np.sum)
+cagedmai = (cagedmai.drop_duplicates('Código do Município'))
+cagedmai.index = cagedmai['Código do Município']
+cagedmai.sort_index(inplace=True)
+cagedmai.drop(cagedmai.columns[[dropar]],inplace=True,axis=1)
+cagedmai = pd.concat([cagedmai,dif_ad5],axis=1)
+
+agrupado6 = cagedjun.groupby('Código do Município')
+admitidos6 = agrupado6['Massa Salarial']
+dif_ad6 = admitidos6.agg(np.sum)
+cagedjun = (cagedjun.drop_duplicates('Código do Município'))
+cagedjun.index = cagedjun['Código do Município']
+cagedjun.sort_index(inplace=True)
+cagedjun.drop(cagedjun.columns[[dropar]],inplace=True,axis=1)
+cagedjun = pd.concat([cagedjun,dif_ad6],axis=1)
+
+agrupado7 = cagedjul.groupby('Código do Município')
+admitidos7 = agrupado7['Massa Salarial']
+dif_ad7 = admitidos7.agg(np.sum)
+cagedjul = (cagedjul.drop_duplicates('Código do Município'))
+cagedjul.index = cagedjul['Código do Município']
+cagedjul.sort_index(inplace=True)
+cagedjul.drop(cagedjul.columns[[dropar]],inplace=True,axis=1)
+cagedjul = pd.concat([cagedjul,dif_ad7],axis=1)
+
+cagedjan.drop(cagedjan.columns[3],inplace=True,axis=1)
+
+cagedmov_sal = pd.merge(left=cagedjan,right=cagedfev,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedmar,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedabr,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedmai,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedjun,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedjul,on='Código do Município',left_index=True,how='left')
+
+cagedmov_sal = cagedmov_sal.replace('nan',0)
+cagedmov_sal = cagedmov_sal.replace(np.nan,0)
+cagedmov_sal = cagedmov_sal.fillna(0)
+
+cagedmov_sal.to_excel(excel_writer='/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Estrutura de Dados.xls',sheet_name='Mov') 
