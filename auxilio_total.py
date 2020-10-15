@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-aux_abr = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxílio Emergencial/202005_AuxilioEmergencial.csv'
+aux_abr = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxílio Emergencial/202004_AuxilioEmergencial.csv'
 aux_mai = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxílio Emergencial/202005_AuxilioEmergencial.csv'
 aux_jun = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxílio Emergencial/202006_AuxilioEmergencial.csv'
 aux_jul = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxílio Emergencial/202007_AuxilioEmergencial.csv'
@@ -25,7 +25,7 @@ def aux_emerg_cleaning(aux):
         filtered_chunk = pd.concat([chunks,valor1],axis=1)
         chunk_list.append(filtered_chunk)
     for dataframes in chunk_list:
-            dataframes.drop(dataframes.columns[[2]],axis=1,inplace=True)
+        dataframes.drop(dataframes.columns[[2]],axis=1,inplace=True)
     filtered_data = pd.concat(chunk_list,axis=0)
     filtered_data.sort_index(inplace=True)
     filtered_data['SOMA'] = filtered_data.iloc[:,4].apply(lambda x: sum(int(i) if len(x) > 0 else np.nan for i in x.split(',')))
@@ -43,7 +43,7 @@ auxilio_ago = aux_emerg_cleaning(aux=aux_ago)
 
 for auxilios in (auxilio_abr,auxilio_mai,auxilio_jun,auxilio_jul,auxilio_ago):
     auxilios.index.astype(int)
-    auxilios.drop_duplicates(subset='CÓDIGO MUNICÍPIO IBGE',inplace=True)
+    auxilios = auxilios[~auxilios.index.duplicated(keep='first')]
 
 auxilio_total = pd.merge(left=auxilio_abr,right=auxilio_mai,on='CÓDIGO MUNICÍPIO IBGE',how='left')
 auxilio_total = pd.merge(left=auxilio_total,right=auxilio_jun,on='CÓDIGO MUNICÍPIO IBGE',how='left')
