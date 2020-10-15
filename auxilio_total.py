@@ -9,9 +9,9 @@ aux_ago = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/Auxíl
 
 
 def aux_emerg_cleaning(aux):
-    aux_mes = pd.read_csv(aux,chunksize=50000,encoding='Latin-1',sep=';')
+    aux_mes = pd.read_csv(aux,chunksize=50000,encoding='Latin-1',sep=';') #reading csv in chunks
     chunk_list = []  
-    for chunks in aux_mes:
+    for chunks in aux_mes: #cleaning the dataframes
         chunks['CÓDIGO MUNICÍPIO IBGE'].fillna(0, inplace=True, axis=0)
         chunks = chunks.astype({'CÓDIGO MUNICÍPIO IBGE':'int'})
         chunks.drop(chunks.columns[[4,5,6,7,8,9,10,11,12]],inplace=True,axis=1)
