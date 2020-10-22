@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 #importando bases
+caged8 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Estabelecimentos/CAGEDESTAB202008.txt'
+cagedaug = pd.read_csv(caged8,sep=';', encoding='cp1252')
 caged7 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Estabelecimentos/CAGEDESTAB202007.txt'
 cagedjul = pd.read_csv(caged7,sep=';', encoding='cp1252')
 
@@ -25,9 +27,10 @@ cagedjan = pd.read_csv(caged1,sep=';', encoding='cp1252')
 #novos nomes para as colunas
 columns1 = ['Ano/Mes','Código da Grande Região','Código UF','Código do Município','Código CNAE','Admitidos-Demitidos','Tipo do tamanho em Jan/2020'] 
 #remover algumas colunas apenas com um loop
-for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul,cagedaug):
     cageds = cageds.drop(cageds.columns[[5,6,7,8,10,11]], axis=1,inplace=True)
-#renomeando colunas    
+#renomeando colunas
+cagedaug.columns = columns1    
 cagedjul.columns = columns1
 cagedjun.columns = columns1
 cagedmai.columns = columns1
@@ -36,7 +39,7 @@ cagedmar.columns = columns1
 cagedfev.columns = columns1
 cagedjan.columns = columns1
 #criando novas colunas: nome da regiao
-for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul,cagedaug):
     conditions = [
             (cageds['Código da Grande Região']==1),
             (cageds['Código da Grande Região']==2),
@@ -145,20 +148,31 @@ cagedjul.sort_index(inplace=True)
 cagedjul.drop(cagedjul.columns[[dropar]],inplace=True,axis=1)
 cagedjul = pd.concat([cagedjul,dif_ad7],axis=1)
 
+agrupado8 = cagedaug.groupby('Código do Município')
+admitidos8 = agrupado8['Admitidos-Demitidos']
+dif_ad8 = admitidos8.agg(np.sum)
+cagedaug = (cagedaug.drop_duplicates('Código do Município'))
+cagedaug.index = cagedaug['Código do Município']
+cagedaug.sort_index(inplace=True)
+cagedaug.drop(cagedaug.columns[[dropar]],inplace=True,axis=1)
+cagedaug = pd.concat([cagedaug,dif_ad8],axis=1)
+
 cagedest_emp = pd.merge(left=cagedjan,right=cagedfev,on='Código do Município',left_index=True,how='left')
 cagedest_emp = pd.merge(left=cagedest_emp,right=cagedmar,on='Código do Município',left_index=True,how='left')
 cagedest_emp = pd.merge(left=cagedest_emp,right=cagedabr,on='Código do Município',left_index=True,how='left')
 cagedest_emp = pd.merge(left=cagedest_emp,right=cagedmai,on='Código do Município',left_index=True,how='left')
 cagedest_emp = pd.merge(left=cagedest_emp,right=cagedjun,on='Código do Município',left_index=True,how='left')
 cagedest_emp = pd.merge(left=cagedest_emp,right=cagedjul,on='Código do Município',left_index=True,how='left')
+cagedest_emp = pd.merge(left=cagedest_emp,right=cagedaug,on='Código do Município',left_index=True,how='left')
 
-cagedest_emp.rename(columns={cagedest_emp.columns[6]: "Variacao Emprego - Jan/2020",
-                             cagedest_emp.columns[8]: "Variacao Emprego - Fev/2020",
-                             cagedest_emp.columns[10]: "Variacao Emprego - Mar/2020",
-                             cagedest_emp.columns[12]: "Variacao Emprego - Abr/2020",
-                             cagedest_emp.columns[14]: "Variacao Emprego - Mai/2020",
-                             cagedest_emp.columns[16]: "Variacao Emprego - Jun/2020",
-                             cagedest_emp.columns[18]: "Variacao Emprego - Jul/2020"}, inplace = True)
+#cagedest_emp.rename(columns={cagedest_emp.columns[6]: "Variacao Emprego - Jan/2020",
+                            # cagedest_emp.columns[8]: "Variacao Emprego - Fev/2020",
+                             #cagedest_emp.columns[10]: "Variacao Emprego - Mar/2020",
+                             #cagedest_emp.columns[12]: "Variacao Emprego - Abr/2020",
+                             #cagedest_emp.columns[14]: "Variacao Emprego - Mai/2020",
+                             #cagedest_emp.columns[16]: "Variacao Emprego - Jun/2020",
+                             #cagedest_emp.columns[18]: "Variacao Emprego - Jul/2020",
+                             #cagedest_emp.columns[18]: "Variacao Emprego - Jul/2020"},inplace = True,axis=1)
 
 cagedest_emp.drop(cagedest_emp.columns[[0,7,9,11,13,15,17]],inplace=True,axis=1)
 
