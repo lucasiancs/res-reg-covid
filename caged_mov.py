@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 
+caged8 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202008.txt'
+cagedaug = pd.read_csv(caged8,sep=';', encoding='cp1252')
+
 caged7 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/Movimentações/CAGEDMOV202007.txt'
 cagedjul = pd.read_csv(caged7,sep=';', encoding='cp1252')
 
@@ -23,10 +26,13 @@ caged1 = '/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Bases/CAGED/M
 cagedjan = pd.read_csv(caged1,sep=';', encoding='cp1252')
 
 #removendo colunas
-for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul,cagedaug):
     cageds = cageds.drop(cageds.columns[[5,12,23]], axis=1,inplace=True)
+
+cagedaug.drop(cagedaug.columns[-1],axis=1,inplace=True)    
 #criando nomes e renomeando colunas
 columns = ['Ano/Mes','Código da Grande Região','Código UF','Código do Município','Código CNAE','Movimentacao','Codigo da Ocupacao','Categoria','Grau de Inst','Idade','Horas Contratual','Sexo','Tipo de Empregador','Tipo de Estabelecimento','Tipo de Mov','Deficiencia','Trab Intermitente','Trab Parcial','Salario','Tamanho do Estabelecimento Jan/2020','Aprendiz']
+cagedaug.columns = columns
 cagedjul.columns = columns
 cagedjun.columns = columns
 cagedmai.columns = columns
@@ -36,7 +42,7 @@ cagedfev.columns = columns
 cagedjan.columns = columns
 #criando novas colunas
 #criando novas colunas: nome da regiao
-for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul):
+for cageds in (cagedjan,cagedfev,cagedmar,cagedabr,cagedmai,cagedjun,cagedjul,cagedaug):
     conditions = [
             (cageds['Código da Grande Região']==1),
             (cageds['Código da Grande Região']==2),
@@ -146,6 +152,15 @@ cagedjul.sort_index(inplace=True)
 cagedjul.drop(cagedjul.columns[[dropar]],inplace=True,axis=1)
 cagedjul = pd.concat([cagedjul,dif_ad7],axis=1)
 
+agrupado8 = cagedaug.groupby('Código do Município')
+admitidos8 = agrupado8['Massa Salarial']
+dif_ad8 = admitidos8.agg(np.sum)
+cagedaug = (cagedaug.drop_duplicates('Código do Município'))
+cagedaug.index = cagedaug['Código do Município']
+cagedaug.sort_index(inplace=True)
+cagedaug.drop(cagedaug.columns[[dropar]],inplace=True,axis=1)
+cagedaug = pd.concat([cagedaug,dif_ad8],axis=1)
+
 cagedjan.drop(cagedjan.columns[3],inplace=True,axis=1)
 
 cagedmov_sal = pd.merge(left=cagedjan,right=cagedfev,on='Código do Município',left_index=True,how='left')
@@ -154,9 +169,10 @@ cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedabr,on='Código do Municíp
 cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedmai,on='Código do Município',left_index=True,how='left')
 cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedjun,on='Código do Município',left_index=True,how='left')
 cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedjul,on='Código do Município',left_index=True,how='left')
+cagedmov_sal = pd.merge(left=cagedmov_sal,right=cagedaug,on='Código do Município',left_index=True,how='left')
 
 cagedmov_sal = cagedmov_sal.replace('nan',0)
 cagedmov_sal = cagedmov_sal.replace(np.nan,0)
 cagedmov_sal = cagedmov_sal.fillna(0)
 
-cagedmov_sal.to_excel(excel_writer='/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Estrutura de Dados.xls',sheet_name='Mov') 
+cagedmov_sal.to_excel(excel_writer='/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Estrutura de Dados_mov.xls',sheet_name='Mov') 
