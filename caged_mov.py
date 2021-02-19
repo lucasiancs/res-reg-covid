@@ -175,4 +175,23 @@ cagedmov_sal = cagedmov_sal.replace('nan',0)
 cagedmov_sal = cagedmov_sal.replace(np.nan,0)
 cagedmov_sal = cagedmov_sal.fillna(0)
 
+cagedmov_sal.columns.values[4] = "01/2020"
+cagedmov_sal.columns.values[5] = "02/2020"
+cagedmov_sal.columns.values[6] = "03/2020"
+cagedmov_sal.columns.values[7] = "04/2020"
+cagedmov_sal.columns.values[8] = "05/2020"
+cagedmov_sal.columns.values[9] = "06/2020"
+cagedmov_sal.columns.values[10] = "07/2020"
+cagedmov_sal.columns.values[11] = "08/2020"
+cagedmov_sal.columns.values[12] = "09/2020"
+
+cagedmov_sal.reset_index(inplace=True)
+cols = ['Código do Município', 'Código da Grande Região', 'Código UF', 'Nome da UF', 'Sigla da UF']
+cagedmov_sal = cagedmov_sal.melt(cols).rename(columns=dict(value='MS')).sort_values(by=cols).reset_index(drop=True)
+#cagedmov_sal = cagedmov_sal.melt(cols).drop(columns=['variable']).rename(columns=dict(value='MS')).sort_values(by=cols).reset_index(drop=True)
+
+#writer = pd.ExcelWriter('/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Séries Históricas/Estrutura de Dados_mov.xls',engine='xlsxwriter')
+#cagedmov_sal.to_excel(writer)
+
+#writer.save()
 cagedmov_sal.to_excel(excel_writer='/Users/lucasiancsamuels/Desktop/Res. Regional - COVID 19/Estrutura de Dados_mov.xls',sheet_name='Mov') 
